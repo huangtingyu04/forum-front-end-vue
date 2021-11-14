@@ -1319,12 +1319,35 @@ export default {
     };
   },
   created() {
-    const { id: userId } = this.$routes.params;
-    this.fetchUser(userId);
+    const { id } = this.$routes.params;
+    this.fetchUser(id);
   },
   methods: {
     fetchUser(userId) {
-      console.log("fetchUser id", userId);
+      console.log("fetchUser id", id);
+
+      const { profile, isFollowed } = dummyData;
+      const {
+        id,
+        image,
+        name,
+        email,
+        Followings,
+        Followers,
+        Comments,
+        FavoritedRestaurants,
+      } = profile;
+      this.user = {
+        ...this.user,
+        id,
+        image,
+        name,
+        email,
+        followingsLength: Followings.length,
+        followersLength: Followers.length,
+        commentsLength: this.comments.length,
+        favoritedRestaurantsLength: FavoritedRestaurants.length,
+      };
     },
   },
 };
