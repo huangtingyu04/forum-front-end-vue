@@ -4,7 +4,10 @@
     <div class="card-body">
       <div v-for="comment in comments" :key="comment.id">
         <h4>
-          <a href="#"> {{ comment.Restaurant.name }} </a>
+          <router-link
+            :to="{ name: 'restaurant', params: { id: comment.Restaurant.id } }"
+            >{{ comment.Restaurant.name }}
+          </router-link>
         </h4>
         <p>{{ comment.text }}.</p>
         by
@@ -17,21 +20,15 @@
 </template>
 
 <script>
-import moment from "moment";
+// 載入撰寫好的 mixin
+import { fromNowFilter } from "./../utils/mixins";
 export default {
+  // 透過 mixins 屬性將撰寫好的 mixin 放入
+  mixins: [fromNowFilter],
   props: {
     comments: {
       type: Array,
       required: true,
-    },
-  },
-  filters: {
-    fromNow(datetime) {
-      if (!datetime) {
-        return "-";
-      }
-      // 使用 moment 提供的 fromNow 方法
-      return moment(datetime).fromNow();
     },
   },
 };

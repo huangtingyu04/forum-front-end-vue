@@ -5,7 +5,10 @@
     <div class="card-body">
       <div v-for="restaurant in restaurants" :key="restaurant.id">
         <h4>
-          <a href="#">{{ restaurant.name }}</a>
+          <router-link
+            :to="{ name: 'restaurant', params: { id: restaurant.id } }"
+            >{{ restaurant.name }}</router-link
+          >
           &nbsp;
           <small>{{
             restaurant.Category ? restaurant.Category.name : "未分類"
@@ -28,21 +31,15 @@ small {
 </style>
 
 <script>
-import moment from "moment";
+// 載入撰寫好的 mixin
+import { fromNowFilter } from "./../utils/mixins";
 export default {
+  // 透過 mixins 屬性將撰寫好的 mixin 放入
+  mixins: [fromNowFilter],
   props: {
     restaurants: {
       type: Array,
       required: true,
-    },
-  },
-  filters: {
-    fromNow(datetime) {
-      if (!datetime) {
-        return "-";
-      }
-      // 使用 moment 提供的 fromNow 方法
-      return moment(datetime).fromNow();
     },
   },
 };

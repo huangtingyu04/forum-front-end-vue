@@ -1,26 +1,25 @@
 <template>
   <div class="container py-5">
-    <h1>餐廳描述頁</h1>
-    <!-- 餐廳資訊頁 RestaurantDetail -->
-    <RestaurantDetail :initial-restaurant="restaurant" />
+    <div>
+      <h1>{{ restaurant.name }}</h1>
+      <span class="badge badge-secondary mt-1 mb-3">
+        {{ restaurant.categoryName }}
+      </span>
+    </div>
+
     <hr />
-    <!-- 餐廳評論 RestaurantComments -->
-    <RestaurantComments
-      :restaurant-comments="restaurantComments"
-      @after-delete-comment="afterDeleteComment"
-    />
-    <!-- 新增評論 CreateComment -->
-    <CreateComment
-      :restaurant-id="restaurant.id"
-      @after-create-comment="afterCreateComment"
-    />
+
+    <ul>
+      <li>評論數： {{ restaurant.commentsLength }} }</li>
+      <li>瀏覽次數： {{ restaurant.viewCounts }} }</li>
+    </ul>
+
+    <button type="button" class="btn btn-link" @click="$router.back()">
+      回上一頁
+    </button>
   </div>
 </template>
-
 <script>
-import RestaurantDetail from "./../components/RestaurantDetail";
-import RestaurantComments from "./../components/RestaurantComments";
-import CreateComment from "./../components/CreateComment";
 const dummyData = {
   restaurant: {
     id: 1,
@@ -34,7 +33,7 @@ const dummyData = {
       "https://loremflickr.com/320/240/restaurant,food/?random=15.319122876392854",
     viewCounts: 1,
     createdAt: "2021-11-10T13:02:01.000Z",
-    updatedAt: "2021-11-14T02:27:04.267Z",
+    updatedAt: "2021-11-14T02:27:04.000Z",
     CategoryId: 3,
     Category: {
       id: 3,
@@ -42,8 +41,6 @@ const dummyData = {
       createdAt: "2021-11-10T13:02:01.000Z",
       updatedAt: "2021-11-10T13:02:01.000Z",
     },
-    FavoritedUsers: [],
-    LikedUsers: [],
     Comments: [
       {
         id: 1,
@@ -104,73 +101,35 @@ const dummyData = {
       },
     ],
   },
-  isFavorited: false,
-  isLiked: false,
 };
-
 export default {
-  components: {
-    RestaurantDetail,
-    RestaurantComments,
-    CreateComment,
-  },
   data() {
     return {
       restaurant: {
         id: -1,
         name: "",
         categoryName: "",
-        image: "",
-        openingHours: "",
-        tel: "",
-        address: "",
-        description: "",
-        isFavorited: false,
-        isLiked: false,
+        commentsLength: 0,
+        viewCounts: 0,
       },
-      restaurantComments: [],
     };
   },
   created() {
     const { id: restaurantId } = this.$route.params;
-    this.fetchRestaurant(restaurantId);
+    this.fetchRestaurantDashboard(restaurantId);
   },
   methods: {
-    fetchRestaurant(restaurantId) {
-      console.log("fetchRestaurant id: ", restaurantId);
+    fetchRestaurantDashboard(restaurantId) {
+      console.log("fetchRestaurantDashboard id: ", restaurantId);
+      const { id, name, Category, Comments, viewCounts } = dummyData.restaurant;
       this.restaurant = {
-        id: dummyData.restaurant.id,
-        name: dummyData.restaurant.name,
-        categoryName: dummyData.restaurant.Category.name
-          ? dummyData.restaurant.Category.name
-          : "未分類",
-        image: dummyData.restaurant.image,
-        openingHours: dummyData.restaurant.opening_hours,
-        tel: dummyData.restaurant.tel,
-        address: dummyData.restaurant.address,
-        description: dummyData.restaurant.description,
-        isFavorited: dummyData.isFavorited,
-        isLiked: dummyData.isLiked,
+        ...this.restaurant,
+        id,
+        name,
+        categoryName: Category ? Category.name : "未分類",
+        commentsLength: Comments.length,
+        viewCounts,
       };
-      this.restaurantComments = dummyData.restaurant.Comments;
-    },
-    afterDeleteComment(commentId) {
-      this.restaurantComments = this.restaurantComments.filter(
-        (comment) => comment.id !== commentId
-      );
-    },
-    afterCreateComment(payload) {
-      const { commentId, restaurantId, text } = payload;
-      this.restaurantComments.push({
-        id: commentId,
-        RestaurantId: restaurantId,
-        User: {
-          id: this.currentUser.id,
-          name: this.currentUser.name,
-        },
-        text,
-        createdAt: new Date(),
-      });
     },
   },
 };
