@@ -3,8 +3,8 @@
     <!-- UserProfileCard -->
     <UserProfileCard
       :user="user"
-      :is-current-user="currentUser.id === user.id"
       :initial-is-followed="isFollowed"
+      :is-current-user="true"
     />
 
     <div class="row">
@@ -1315,16 +1315,16 @@ export default {
       followings: [],
       followers: [],
       comments: [],
-      FavoritedRestaurants: [],
+      favoritedRestaurants: [],
     };
   },
   created() {
-    const { id } = this.$routes.params;
-    this.fetchUser(id);
+    const { id: userId } = this.$route.params;
+    this.fetchUser(userId);
   },
   methods: {
     fetchUser(userId) {
-      console.log("fetchUser id", id);
+      console.log("fetchUser id", userId);
 
       const { profile, isFollowed } = dummyData;
       const {
@@ -1348,6 +1348,12 @@ export default {
         commentsLength: this.comments.length,
         favoritedRestaurantsLength: FavoritedRestaurants.length,
       };
+      this.comments = Comments.filter((comment) => comment.Restaurant);
+
+      this.isFollowed = isFollowed;
+      this.followings = Followings;
+      this.followers = Followers;
+      this.favoritedRestaurants = FavoritedRestaurants;
     },
   },
 };
