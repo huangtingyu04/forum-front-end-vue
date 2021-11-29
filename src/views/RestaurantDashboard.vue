@@ -10,7 +10,7 @@
     <hr />
 
     <ul>
-      <li>評論數： {{ restaurant.commentsLength }} }</li>
+      <li>評論數： {{ restaurant.commentsLength }}</li>
       <li>瀏覽次數： {{ restaurant.viewCounts }} }</li>
     </ul>
 

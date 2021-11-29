@@ -1,211 +1,155 @@
-// ./src/views/RestaurantsTop.vue
 <template>
   <div class="container py-5">
-    <!-- 使用 NavTabs 元件 -->
     <NavTabs />
-    <h1 class="mt-5">人氣餐廳</h1>
-    <RestaurantTopCard
-      v-for="restaurant in restaurants"
-      :key="restaurant.id"
-      :initial-restaurant="restaurant"
-    />
+    <template>
+      <h1 class="mt-5">人氣餐廳</h1>
+
+      <hr />
+      <div
+        v-for="restaurant in restaurants"
+        :key="restaurant.id"
+        class="card mb-3"
+        style="max-width: 540px; margin: auto"
+      >
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <router-link
+              :to="{ name: 'restaurant', params: { id: restaurant.id } }"
+            >
+              <img class="card-img" :src="restaurant.image | emptyImage" />
+            </router-link>
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">
+                {{ restaurant.name }}
+              </h5>
+              <span class="badge badge-secondary"
+                >收藏數：{{ restaurant.FavoriteCount }}</span
+              >
+              <p class="card-text">
+                {{ restaurant.description }}
+              </p>
+              <router-link
+                class="btn btn-primary mr-2"
+                :to="{ name: 'restaurant', params: { id: restaurant.id } }"
+              >
+                Show
+              </router-link>
+
+              <button
+                v-if="restaurant.isFavorited"
+                type="button"
+                class="btn btn-danger mr-2"
+                @click.stop.prevent="deleteFavorite(restaurant.id)"
+              >
+                移除最愛
+              </button>
+              <button
+                v-else
+                type="button"
+                class="btn btn-primary"
+                @click.stop.prevent="addFavorite(restaurant.id)"
+              >
+                加到最愛
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script>
+import { emptyImageFilter } from "./../utils/mixins";
 import NavTabs from "./../components/NavTabs";
-import RestaurantTopCard from "./../components/RestaurantTopCard";
+import restaurantsAPI from "./../apis/restaurants";
+import usersAPI from "./../apis/users";
+import { Toast } from "@/utils/helpers";
 
-const dummyData = {
-  restaurants: [
-    {
-      id: 1,
-      name: "Norwood Wehner Jr.",
-      tel: "463.606.9752",
-      address: "95284 Vernice Crossroad",
-      opening_hours: "08:00",
-      description: "Rerum dolor aliquam sapiente alias vel ipsa est se",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=15.319122876392854",
-      viewCounts: 1,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-14T02:27:04.000Z",
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 22,
-      name: "Sonia Stracke",
-      tel: "(304) 125-8622",
-      address: "3554 Baumbach Rapids",
-      opening_hours: "08:00",
-      description: "Culpa dicta ipsa voluptates sit. Consequatur omnis",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=38.752619355345175",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 23,
-      name: "Angelo Koch",
-      tel: "633-560-0029 x1233",
-      address: "347 Turner Spring",
-      opening_hours: "08:00",
-      description: "Vel et fugiat aperiam dolorum.",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=76.66212643910806",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 4,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 24,
-      name: "Shaina Halvorson",
-      tel: "1-941-346-2472",
-      address: "37825 Gaylord Port",
-      opening_hours: "08:00",
-      description: "Et in incidunt aut accusamus debitis facilis.",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=59.3486435674073",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 1,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 25,
-      name: "Alexandria Mills",
-      tel: "1-644-841-9837 x4319",
-      address: "14443 Reichel Unions",
-      opening_hours: "08:00",
-      description: "Velit delectus optio quam corporis dolorem. Sunt b",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=81.99054350862407",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 2,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 21,
-      name: "Bryon Braun",
-      tel: "(000) 970-0498",
-      address: "6169 Desiree Port",
-      opening_hours: "08:00",
-      description: "dolor et libero",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=83.66800292520114",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 27,
-      name: "Augusta Konopelski",
-      tel: "(857) 640-6422 x2450",
-      address: "2016 Swaniawski Shore",
-      opening_hours: "08:00",
-      description: "Aut culpa minus nulla ut quisquam temporibus. Quam",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=14.893441751627211",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 5,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 28,
-      name: "Elenora Zulauf",
-      tel: "(140) 481-7894",
-      address: "4320 Keshawn Tunnel",
-      opening_hours: "08:00",
-      description: "Reprehenderit dolores eveniet eos ut vel earum.\nUt",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=45.567704445096766",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 1,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 29,
-      name: "Deshawn Halvorson",
-      tel: "(477) 316-2724",
-      address: "735 Mante Throughway",
-      opening_hours: "08:00",
-      description: "Magnam vitae enim sint. Omnis et atque rerum conse",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=14.437131178192564",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-    {
-      id: 30,
-      name: "Alexis Barton DVM",
-      tel: "435-595-6479",
-      address: "11880 Crooks Locks",
-      opening_hours: "08:00",
-      description: "atque",
-      image:
-        "https://loremflickr.com/320/240/restaurant,food/?random=98.15680208790394",
-      viewCounts: 0,
-      createdAt: "2021-11-10T13:02:01.000Z",
-      updatedAt: "2021-11-10T13:02:01.000Z",
-      CategoryId: 1,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0,
-    },
-  ],
-};
 export default {
   components: {
     NavTabs,
-    RestaurantTopCard,
   },
+  mixins: [emptyImageFilter],
   data() {
     return {
       restaurants: [],
+      isLoading: false,
     };
   },
   created() {
-    this.fetchRestaurantTop();
+    this.fetchTopRestaurants();
   },
   methods: {
-    fetchRestaurantTop() {
-      this.restaurants = dummyData.restaurants;
+    async fetchTopRestaurants() {
+      try {
+        this.isLoading = true;
+        const { data } = await restaurantsAPI.getTopRestaurants();
+        if (data.status === "error") {
+          throw new Error(data.message);
+        }
+        this.restaurants = data.restaurants;
+        this.isLoading = false;
+      } catch (error) {
+        console.error(error.message);
+        this.isLoading = false;
+        Toast.fire({
+          icon: "error",
+          title: "無法取得人氣餐廳，請稍後再試",
+        });
+      }
+    },
+    async addFavorite(restaurantId) {
+      try {
+        const { data } = await usersAPI.addFavorite({ restaurantId });
+        if (data.status !== "success") {
+          throw new Error(data.message);
+        }
+        this.restaurants = this.restaurants
+          .map((restaurant) => {
+            if (restaurant.id !== restaurantId) {
+              return restaurant;
+            }
+            return {
+              ...restaurant,
+              FavoriteCount: restaurant.FavoriteCount + 1,
+              isFavorited: true,
+            };
+          })
+          .sort((a, b) => b.FavoriteCount - a.FavoriteCount);
+      } catch (error) {
+        Toast.fire({
+          icon: "error",
+          title: "無法將餐廳加入最愛，請稍後再試",
+        });
+      }
+    },
+    async deleteFavorite(restaurantId) {
+      try {
+        const { data } = await usersAPI.deleteFavorite({ restaurantId });
+        if (data.status !== "success") {
+          throw new Error(data.message);
+        }
+        this.restaurants = this.restaurants
+          .map((restaurant) => {
+            if (restaurant.id !== restaurantId) {
+              return restaurant;
+            }
+            return {
+              ...restaurant,
+              FavoriteCount: restaurant.FavoriteCount - 1,
+              isFavorited: false,
+            };
+          })
+          .sort((a, b) => b.FavoriteCount - a.FavoriteCount);
+      } catch (error) {
+        Toast.fire({
+          icon: "error",
+          title: "無法將餐廳移除最愛，請稍後再試",
+        });
+      }
     },
   },
 };
